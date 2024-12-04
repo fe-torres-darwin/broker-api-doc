@@ -1,0 +1,3543 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "HealthController_check",
+        "summary": "GetHealthCheck",
+        "description": "Verifica integridade da aplicação",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The Health Check is successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
+                    "info": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": ["status"],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "object",
+                      "example": {},
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": ["status"],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "details": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": ["status"],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The Health Check is not successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "info": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": ["status"],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "object",
+                      "example": {
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": ["status"],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "details": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        },
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": ["status"],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": ""
+          }
+        },
+        "tags": ["HealtCheck"]
+      }
+    },
+    "/quotes": {
+      "post": {
+        "operationId": "QuoteController_createQuote",
+        "summary": "Create quote",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateQuoteRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The record has been successfully created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteResponseDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request body is incorrect"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "tags": ["Quotes"]
+      },
+      "get": {
+        "operationId": "QuoteController_listQuotes",
+        "summary": "List quotes by broker",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "registers per page",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "page number",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "description": "sort by field and order",
+            "schema": {
+              "example": "validity:desc",
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "required": false,
+            "in": "query",
+            "description": "vehicle plate or customer document (CPF)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Quotes Paginated with filters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ListQuoteResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Quotes not found"
+          }
+        },
+        "tags": ["Quotes"]
+      }
+    },
+    "/quotes/{id}": {
+      "get": {
+        "operationId": "QuoteController_getQuote",
+        "summary": "Get quote details",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The quote details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteResponseDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error getting quote details"
+          },
+          "404": {
+            "description": "Quote not found"
+          }
+        },
+        "tags": ["Quotes"]
+      },
+      "put": {
+        "operationId": "QuoteController_updateQuote",
+        "summary": "Update quote",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateQuoteRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The record has been successfully updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteResponseDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request body is incorrect"
+          },
+          "404": {
+            "description": "The record has not been found"
+          }
+        },
+        "tags": ["Quotes"]
+      }
+    },
+    "/quotes/{id}/document": {
+      "get": {
+        "operationId": "QuoteController_getQuoteDocument",
+        "summary": "Get quotation document",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Quote document url",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentResponseDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error getting quotation document"
+          },
+          "404": {
+            "description": "Quote not found"
+          }
+        },
+        "tags": ["Quotes"]
+      }
+    },
+    "/tickets": {
+      "get": {
+        "operationId": "PolicyController_listPolicies",
+        "summary": "List all tickets",
+        "parameters": [
+          {
+            "name": "document",
+            "required": false,
+            "in": "query",
+            "description": "customer document (CPF)",
+            "schema": {
+              "example": "123456789",
+              "type": "string"
+            }
+          },
+          {
+            "name": "plate",
+            "required": false,
+            "in": "query",
+            "description": "vehicle plate",
+            "schema": {
+              "example": "AAA1234",
+              "type": "string"
+            }
+          },
+          {
+            "name": "externalId",
+            "required": false,
+            "in": "query",
+            "description": "external ID",
+            "schema": {
+              "example": "ABC123",
+              "type": "string"
+            }
+          },
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "description": "initial coverage date",
+            "schema": {
+              "example": "2024-01-28",
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "policy status",
+            "schema": {
+              "example": "Active",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "required": true,
+            "in": "query",
+            "description": "sort order",
+            "schema": {
+              "example": "desc",
+              "type": "string"
+            }
+          },
+          {
+            "name": "fieldSort",
+            "required": true,
+            "in": "query",
+            "description": "sort field",
+            "schema": {
+              "example": "createdAt",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GetTicketResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error listing tickets"
+          },
+          "404": {
+            "description": "tickets not found"
+          }
+        },
+        "tags": ["Ticket"],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/tickets/{ticketNumber}": {
+      "get": {
+        "operationId": "PolicyController_getPolicy",
+        "summary": "Get a ticket by ticket number",
+        "parameters": [
+          {
+            "name": "ticketNumber",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetTicketResponseDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error getting ticket"
+          },
+          "404": {
+            "description": "Policy not found"
+          }
+        },
+        "tags": ["Ticket"],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/transmissions/{id}": {
+      "get": {
+        "operationId": "ProposalController_get",
+        "summary": "Get transmission by ID",
+        "description": "Resource to get transmission",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transmission found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransmissionResponseDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error getting transmission"
+          },
+          "404": {
+            "description": "Transmission not found"
+          }
+        },
+        "tags": ["Transmission"],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/transmissions": {
+      "get": {
+        "operationId": "ProposalController_getByFilters",
+        "summary": "Get transmissions with filters",
+        "description": "Resource to get transmission",
+        "parameters": [
+          {
+            "name": "document",
+            "required": false,
+            "in": "query",
+            "description": "client document (CPF)",
+            "schema": {
+              "example": "123456789",
+              "type": "string"
+            }
+          },
+          {
+            "name": "plate",
+            "required": false,
+            "in": "query",
+            "description": "vehicle plate",
+            "schema": {
+              "example": "AAA1234",
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": false,
+            "in": "query",
+            "description": "filter by date",
+            "schema": {
+              "example": "2022-01-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "registers per page",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "page number",
+            "schema": {
+              "example": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "description": "sort order",
+            "schema": {
+              "example": "asc",
+              "type": "string"
+            }
+          },
+          {
+            "name": "fieldSort",
+            "required": false,
+            "in": "query",
+            "description": "field to sort",
+            "schema": {
+              "example": "createdAt",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transmission found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TransmissionResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error getting transmission"
+          }
+        },
+        "tags": ["Transmission"],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "ProposalController_post",
+        "summary": "Create transmission",
+        "description": "Resource to create transmission",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTransmissionDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Transmission created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransmissionResponseDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error creating transmission"
+          },
+          "403": {
+            "description": "Not authorized to make a transmission with this quote"
+          }
+        },
+        "tags": ["Transmission"],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/commission/summary": {
+      "get": {
+        "operationId": "CommissionController_handleCommissionSummary",
+        "summary": "Get broker commission summary by date",
+        "parameters": [
+          {
+            "name": "date",
+            "required": true,
+            "in": "query",
+            "description": "Date of the summary (YYYY-MM-DD)",
+            "schema": {
+              "example": "2010-01-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Limit off summary quantity",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Offset off summary list",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommissionSummaryResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "An error occurred while retrieving the records. Please try again later."
+          }
+        },
+        "tags": ["Commission"]
+      }
+    },
+    "/v2/quotes": {
+      "post": {
+        "operationId": "QuoteController_createQuote",
+        "summary": "Create quote V2",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateQuoteRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The record has been successfully created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateQuoteResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request body is incorrect"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "tags": ["Quotes"]
+      }
+    }
+  },
+  "info": {
+    "title": "BrokerApi",
+    "description": "Documentação dos endpoints",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "CreateQuoteCustomerRequestDTO": {
+        "type": "object",
+        "properties": {
+          "document": {
+            "type": "string",
+            "description": "customer document (CPF)",
+            "example": "12345678901"
+          },
+          "name": {
+            "type": "string",
+            "description": "customer name",
+            "example": "Charles Darwin"
+          },
+          "postCode": {
+            "type": "string",
+            "description": "customer postal code",
+            "example": "00000000"
+          },
+          "phone": {
+            "type": "string",
+            "description": "customer phone number",
+            "example": "(11) 9 99999999"
+          },
+          "email": {
+            "type": "string",
+            "description": "customer email",
+            "example": "charles@darwinseguros.com"
+          },
+          "birthDate": {
+            "type": "string",
+            "description": "customer birth date",
+            "example": "01/01/1991"
+          },
+          "registeredName": {
+            "type": "string",
+            "description": "customer registered name (for customer with social name)",
+            "example": "Complete Customer Registered Name"
+          },
+          "gender": {
+            "type": "string",
+            "description": "customer gender",
+            "enum": ["male", "Female", "nonBinary", "preferNotToSay"],
+            "example": "male"
+          },
+          "maritalStatus": {
+            "type": "string",
+            "description": "customer Marital Status",
+            "enum": ["single", "married", "divorced", "widowed", "separated"],
+            "example": "single"
+          },
+          "landline": {
+            "type": "string",
+            "description": "customer landline number",
+            "example": "(11) 99999999"
+          }
+        },
+        "required": [
+          "document",
+          "name",
+          "postCode",
+          "phone",
+          "email",
+          "birthDate",
+          "registeredName",
+          "gender",
+          "maritalStatus",
+          "landline"
+        ]
+      },
+      "CreateQuoteMainConductorRequestDTO": {
+        "type": "object",
+        "properties": {
+          "document": {
+            "type": "string",
+            "description": "main conductor document (CPF)",
+            "example": "12345678901"
+          },
+          "name": {
+            "type": "string",
+            "description": "main conductor name",
+            "example": "Charles Darwin"
+          },
+          "phone": {
+            "type": "string",
+            "description": "main conductor phone number",
+            "example": "00000000"
+          },
+          "email": {
+            "type": "string",
+            "description": "main conductor email",
+            "example": "charles@darwinseguros.com"
+          },
+          "birthDate": {
+            "type": "string",
+            "description": "main conductor birth date",
+            "example": "01/01/2000"
+          },
+          "registeredName": {
+            "type": "string",
+            "description": "main conductor registered name (for customer with social name)",
+            "example": "Complete Customer Registered Name"
+          },
+          "gender": {
+            "type": "string",
+            "description": "customer relationship",
+            "enum": ["male", "Female", "nonBinary", "preferNotToSay"],
+            "example": "male"
+          },
+          "maritalStatus": {
+            "type": "string",
+            "description": "customer Marital Status",
+            "enum": ["single", "married", "divorced", "widowed", "separated"],
+            "example": "single"
+          },
+          "customerRelationship": {
+            "type": "string",
+            "description": "customer relationship",
+            "enum": ["insured", "spouse", "parent", "child", "sibling", "other"],
+            "example": "child"
+          },
+          "permitAge": {
+            "type": "string",
+            "description": "main conductor permit age",
+            "example": "2"
+          }
+        },
+        "required": [
+          "document",
+          "name",
+          "phone",
+          "email",
+          "birthDate",
+          "registeredName",
+          "gender",
+          "maritalStatus",
+          "customerRelationship",
+          "permitAge"
+        ]
+      },
+      "CreateQuoteVehicleRequestDTO": {
+        "type": "object",
+        "properties": {
+          "plate": {
+            "type": "string",
+            "description": "vehicle plate",
+            "example": "ABC1234"
+          },
+          "ItsAWorkVehicle": {
+            "type": "boolean",
+            "description": "indicates if the vehicle is a work vehicle",
+            "example": false
+          },
+          "year": {
+            "type": "number",
+            "description": "vehicle manufacturing year",
+            "example": 2023
+          },
+          "modelYear": {
+            "type": "number",
+            "description": "vehicle release year",
+            "example": 2022
+          },
+          "model": {
+            "type": "string",
+            "description": "vehicle model",
+            "example": "HB20"
+          },
+          "fipeCode": {
+            "type": "string",
+            "description": "FIPE code",
+            "example": "123456-7"
+          },
+          "fuelType": {
+            "type": "string",
+            "description": "fuel type",
+            "example": "G",
+            "enum": ["A", "D", "G"]
+          },
+          "manufacturer": {
+            "type": "string",
+            "description": "vehicle manufacturer",
+            "example": "Hyundai"
+          },
+          "armored": {
+            "type": "boolean",
+            "description": "indicates if the vehicle is armored",
+            "example": true
+          },
+          "newVehicle": {
+            "type": "boolean",
+            "description": "indicates if the vehicle is new",
+            "example": true
+          },
+          "usageType": {
+            "type": "string",
+            "description": "vehicle usage type",
+            "enum": [
+              "automóvel",
+              "caminhonete",
+              "camioneta",
+              "utilitário",
+              "particular",
+              "taxi",
+              "appDriver",
+              "transport",
+              "others"
+            ],
+            "example": "particular"
+          },
+          "chassi": {
+            "type": "string",
+            "description": "vehicle chassis",
+            "example": "9BWDA05U8DT108399"
+          },
+          "overnightPostCode": {
+            "type": "string",
+            "description": "vehicle overnight post code postal code",
+            "example": "00000000"
+          },
+          "gasKit": {
+            "type": "boolean",
+            "description": "indicates if the vehicle have gas kit",
+            "example": true
+          },
+          "alienated": {
+            "type": "boolean",
+            "description": "indicates if the vehicle is alienated",
+            "example": true
+          },
+          "trackingDevice": {
+            "type": "string",
+            "description": "vehicle tracking system",
+            "enum": [
+              "autoTrac",
+              "carSystem",
+              "celtec",
+              "cielo",
+              "graber",
+              "ituran",
+              "tracker",
+              "omnilink",
+              "positron",
+              "sascar",
+              "DAF-V",
+              "ceABS",
+              "onStar",
+              "loJack",
+              "factoryOriginal",
+              "SEGSAT",
+              "carneiroLock",
+              "none"
+            ],
+            "example": "carneiroLock"
+          },
+          "antitheft": {
+            "type": "string",
+            "description": "vehicle usage type",
+            "enum": ["none", "alarm", "ignitionBlock", "carneiroLock", "mulTLock", "others"],
+            "example": "alarm"
+          }
+        },
+        "required": [
+          "plate",
+          "ItsAWorkVehicle",
+          "year",
+          "modelYear",
+          "model",
+          "fipeCode",
+          "fuelType",
+          "manufacturer",
+          "armored",
+          "newVehicle",
+          "usageType",
+          "chassi",
+          "overnightPostCode",
+          "gasKit",
+          "alienated",
+          "trackingDevice",
+          "antitheft"
+        ]
+      },
+      "CreateQuoteAssistRequestDTO": {
+        "type": "object",
+        "properties": {
+          "winch": {
+            "type": "string",
+            "description": "winch assistance max distance",
+            "enum": ["100", "200", "1000"],
+            "example": "100"
+          },
+          "reserveCar": {
+            "type": "string",
+            "description": "backup car amount of days",
+            "enum": ["7D", "15D"],
+            "example": "15D"
+          },
+          "glass": {
+            "type": "string",
+            "description": "glass assistance type",
+            "enum": ["B", "C"],
+            "example": "B"
+          },
+          "withAC": {
+            "type": "boolean",
+            "description": "with air conditioning?",
+            "example": true
+          },
+          "zeroKmWarranty": {
+            "type": "boolean",
+            "description": "zero KM warranty?",
+            "example": true
+          },
+          "extraExpenses": {
+            "type": "boolean",
+            "description": "extra expenses?",
+            "example": true
+          },
+          "quickRepair": {
+            "type": "boolean",
+            "description": "quick Repair?",
+            "example": true
+          },
+          "holeProtection": {
+            "type": "boolean",
+            "description": "holeProtection?",
+            "example": true
+          }
+        },
+        "required": ["winch", "reserveCar", "glass"]
+      },
+      "CreateQuoteBonusClassDTO": {
+        "type": "object",
+        "properties": {
+          "policy": {
+            "type": "string",
+            "description": "Previous policy"
+          },
+          "insuranceCode": {
+            "type": "string",
+            "description": "Congeneric Code"
+          },
+          "ci": {
+            "type": "string",
+            "description": "CI Code"
+          },
+          "bonus": {
+            "type": "number",
+            "description": "Bonus"
+          },
+          "previousTermEnd": {
+            "type": "string",
+            "description": "Previus Term End"
+          },
+          "claims": {
+            "type": "number",
+            "description": "Quantity of Claims"
+          }
+        },
+        "required": ["policy", "insuranceCode", "ci", "bonus", "previousTermEnd", "claims"]
+      },
+      "CreateQuoteQuestionnaireDTO": {
+        "type": "object",
+        "properties": {
+          "homeGarage": {
+            "type": "string",
+            "description": "Garage condition at home",
+            "enum": ["withElectronicGate", "withManualGate", "noGarage"],
+            "example": "withElectronicGate"
+          },
+          "workGarage": {
+            "type": "string",
+            "description": "Garage condition at work",
+            "enum": ["notUsedForWork", "no", "yes", "notEmployed"],
+            "example": "no"
+          },
+          "studyGarage": {
+            "type": "string",
+            "description": "Garage condition at school",
+            "enum": ["notUsedForStudy", "no", "yes", "notStudying"],
+            "example": "notStudying"
+          },
+          "under26Residents": {
+            "type": "string",
+            "description": "Are there residents under 26?",
+            "enum": ["no", "yesMale", "yesFemale", "yesBothGenders", "yesButNotUsingVehicle"],
+            "example": "yesMale"
+          },
+          "residentsAge": {
+            "type": "string",
+            "description": "Age range of residents",
+            "enum": ["age18To24", "ageMore25"],
+            "example": "age18To24"
+          },
+          "homeVehicleCount": {
+            "type": "number",
+            "description": "Number of vehicles at home",
+            "example": 2
+          },
+          "residenceType": {
+            "type": "string",
+            "description": "Type of residence",
+            "enum": ["house", "apartment", "condominium", "others"],
+            "example": "house"
+          },
+          "monthlyKM": {
+            "type": "number",
+            "description": "Monthly kilometers driven"
+          },
+          "workDistance": {
+            "type": "string",
+            "description": "Distance to work in kilometers",
+            "enum": ["upTo10KM", "upTo20KM", "upTo30KM", "upTo40KM", "above40KM"],
+            "example": "upTo10KM"
+          },
+          "hasDisability": {
+            "type": "boolean",
+            "description": "Indicates if the user has a disability",
+            "example": true
+          },
+          "taxExemption": {
+            "type": "string",
+            "description": "Is there any tax exemption?",
+            "enum": ["IPI", "ICMS", "IPI/ICMS"],
+            "example": "IPI"
+          },
+          "profession": {
+            "type": "string",
+            "description": "Profession of insured"
+          },
+          "mainBank": {
+            "type": "number",
+            "description": "MainBank of insured"
+          }
+        },
+        "required": [
+          "homeGarage",
+          "workGarage",
+          "studyGarage",
+          "under26Residents",
+          "residentsAge",
+          "homeVehicleCount",
+          "residenceType",
+          "monthlyKM",
+          "workDistance",
+          "taxExemption",
+          "profession",
+          "mainBank"
+        ]
+      },
+      "CreateQuoteRequestDTO": {
+        "type": "object",
+        "properties": {
+          "adjustmentRate": {
+            "type": "number",
+            "description": "vehicle coverage/insurance value in percentage - accepted values: 80, 90 and 100",
+            "example": 100
+          },
+          "adjustmentRateAmount": {
+            "type": "number",
+            "description": "vehicle coverage/insurance value",
+            "example": 0
+          },
+          "materialsDamage": {
+            "type": "number",
+            "description": "material damage coverage value",
+            "example": 0
+          },
+          "bodilyDamage": {
+            "type": "number",
+            "description": "bodily damage coverage value",
+            "example": 0
+          },
+          "moralDamage": {
+            "type": "number",
+            "description": "moral damage coverage value",
+            "example": 0
+          },
+          "deathApp": {
+            "type": "number",
+            "description": "death coverage value",
+            "example": 30000
+          },
+          "gasKitValue": {
+            "type": "number",
+            "description": "gas kit value",
+            "example": 0
+          },
+          "termInit": {
+            "type": "string",
+            "description": "term init date",
+            "example": "2024-05-27T17:25:00.400Z"
+          },
+          "externalId": {
+            "type": "string",
+            "description": "external id, usually a external partner reference",
+            "example": "123456"
+          },
+          "commission": {
+            "type": "number",
+            "description": "commission percentage (0.1 = 10%)",
+            "example": "0.1"
+          },
+          "franchise": {
+            "type": "string",
+            "description": "franchise type",
+            "enum": ["reduzida", "normal", "majorada"],
+            "example": "majorada"
+          },
+          "insuranceType": {
+            "type": "string",
+            "description": "insurance type",
+            "enum": ["new", "renewal"],
+            "example": "new"
+          },
+          "customer": {
+            "description": "customer data",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CreateQuoteCustomerRequestDTO"
+              }
+            ]
+          },
+          "mainConductor": {
+            "description": "main conductor data",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CreateQuoteMainConductorRequestDTO"
+              }
+            ]
+          },
+          "campaignCode": {
+            "type": "string",
+            "description": "campaign code (when quote belongs to a campaign lot)",
+            "example": "123456"
+          },
+          "vehicle": {
+            "description": "vehicle data",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CreateQuoteVehicleRequestDTO"
+              }
+            ]
+          },
+          "assistance": {
+            "type": "string",
+            "description": "assistance package code",
+            "example": "P"
+          },
+          "assist": {
+            "description": "assistance data",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CreateQuoteAssistRequestDTO"
+              }
+            ]
+          },
+          "bonusClass": {
+            "description": "bonus class data",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CreateQuoteBonusClassDTO"
+              }
+            ]
+          },
+          "questionnaire": {
+            "description": "questionnaire data",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CreateQuoteQuestionnaireDTO"
+              }
+            ]
+          }
+        },
+        "required": [
+          "adjustmentRate",
+          "adjustmentRateAmount",
+          "materialsDamage",
+          "bodilyDamage",
+          "moralDamage",
+          "deathApp",
+          "gasKitValue",
+          "termInit",
+          "externalId",
+          "commission",
+          "franchise",
+          "insuranceType",
+          "customer",
+          "mainConductor",
+          "campaignCode",
+          "vehicle",
+          "assistance",
+          "assist",
+          "bonusClass",
+          "questionnaire"
+        ]
+      },
+      "CoverageResponseDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Coverage Description",
+            "example": "Vidros Básicos"
+          },
+          "value": {
+            "type": "number",
+            "description": "Value",
+            "example": 100
+          },
+          "duePremium": {
+            "type": "number",
+            "description": "Due premium",
+            "example": 5.15
+          },
+          "franchise": {
+            "type": "number",
+            "description": "Franchise",
+            "example": 0
+          },
+          "information": {
+            "description": "Information",
+            "example": ["Cobertura 1", "Cobertura 2"],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["name", "value", "duePremium", "franchise", "information"]
+      },
+      "DetailsResponseDTO": {
+        "type": "object",
+        "properties": {
+          "validity": {
+            "format": "date-time",
+            "type": "string",
+            "description": "validity date",
+            "example": "2024-12-04T18:17:40.521Z"
+          },
+          "deductibleAmount": {
+            "type": "number",
+            "description": "deductible total installment amount",
+            "example": 1000
+          },
+          "deductible": {
+            "type": "string",
+            "description": "total deductible value",
+            "example": 1000
+          },
+          "valueMin": {
+            "type": "number",
+            "description": "minimum value",
+            "example": 120
+          },
+          "originalValue": {
+            "type": "number",
+            "description": "original value",
+            "example": 200
+          },
+          "value": {
+            "type": "number",
+            "description": "value",
+            "example": 200
+          },
+          "valueMax": {
+            "type": "number",
+            "description": "maximum value",
+            "example": 280
+          },
+          "valueWithDiscount": {
+            "type": "number",
+            "description": "value with discount",
+            "example": 200
+          },
+          "name": {
+            "type": "string",
+            "description": "plan name",
+            "example": 200
+          },
+          "coverages": {
+            "description": "coverages",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CoverageResponseDTO"
+            }
+          },
+          "description": {
+            "description": "quote description",
+            "example": ["Coverage 1", "Coverage 2"],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "adjustmentRate": {
+            "type": "string",
+            "description": "adjustment rate",
+            "example": "6"
+          },
+          "adjustmentRateAmount": {
+            "type": "number",
+            "description": "adjustment value",
+            "example": 10
+          },
+          "adjustmentRatePercent": {
+            "type": "number",
+            "description": "assistance adjustment value in percentage",
+            "example": 10
+          },
+          "insuranceGroup": {
+            "type": "string",
+            "description": "insurance group",
+            "example": "AUTO"
+          },
+          "nextPremiumMax": {
+            "type": "number",
+            "description": "next month maximum value",
+            "example": 10
+          },
+          "nextPremiumMin": {
+            "type": "number",
+            "description": "next month minimum value",
+            "example": 10
+          },
+          "package": {
+            "type": "string",
+            "description": "assistance package",
+            "example": "M"
+          },
+          "plan": {
+            "type": "string",
+            "description": "plan",
+            "example": "plan"
+          },
+          "planInterval": {
+            "type": "string",
+            "description": "plan interval",
+            "example": "Monthly"
+          }
+        },
+        "required": [
+          "validity",
+          "deductibleAmount",
+          "deductible",
+          "valueMin",
+          "originalValue",
+          "value",
+          "valueMax",
+          "valueWithDiscount",
+          "name",
+          "coverages",
+          "description",
+          "adjustmentRate",
+          "adjustmentRateAmount",
+          "adjustmentRatePercent",
+          "insuranceGroup",
+          "nextPremiumMax",
+          "nextPremiumMin",
+          "package",
+          "plan",
+          "planInterval"
+        ]
+      },
+      "AssistanceDetailsItemResponseDTO": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "description": "Assistance details",
+            "example": ["Coverage 1", "Coverage 2"],
+            "type": "array",
+            "items": {
+              "type": "array"
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "Assistance code",
+            "example": "123456"
+          },
+          "title": {
+            "type": "string",
+            "description": "Assistance title",
+            "example": "Assistance Title"
+          }
+        },
+        "required": ["description", "name", "title"]
+      },
+      "AssistanceDetailsResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Assistance id",
+            "example": "123456"
+          },
+          "items": {
+            "description": "Assistance details items",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AssistanceDetailsItemResponseDTO"
+              }
+            ]
+          },
+          "label": {
+            "type": "string",
+            "description": "Assistance label",
+            "example": "Assistance Label"
+          },
+          "name": {
+            "type": "string",
+            "description": "Assistance name",
+            "example": "Assistance Name"
+          }
+        },
+        "required": ["id", "items", "label", "name"]
+      },
+      "CustomerResponseDTO": {
+        "type": "object",
+        "properties": {
+          "document": {
+            "type": "string",
+            "description": "customer document (CPF)",
+            "example": "00000000000"
+          },
+          "name": {
+            "type": "string",
+            "description": "customer name",
+            "example": "Darwin"
+          },
+          "postCode": {
+            "type": "string",
+            "description": "customer postal code",
+            "example": "00000-000"
+          },
+          "phone": {
+            "type": "string",
+            "description": "customer phone number",
+            "example": "11999999999"
+          },
+          "email": {
+            "type": "string",
+            "description": "customer email",
+            "example": "charles@darwinseguros.com"
+          },
+          "birthDate": {
+            "type": "string",
+            "description": "customer birth date",
+            "example": "19/02/1809"
+          },
+          "registeredName": {
+            "type": "string",
+            "description": "customer registration name (if customer has a social name)",
+            "example": "Charles Robert Darwin"
+          }
+        },
+        "required": ["document", "name", "postCode", "phone", "email", "birthDate", "registeredName"]
+      },
+      "QuoteProductResponseDTO": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "description": "product description",
+            "example": ["This is a product description", "This is another product description"],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "product name",
+            "example": "Auto Insurance"
+          },
+          "value": {
+            "type": "number",
+            "description": "product value",
+            "example": 120
+          },
+          "nextPremiumMin": {
+            "type": "number",
+            "description": "minimum value of the next charge",
+            "example": 110
+          },
+          "nextPremiumMax": {
+            "type": "number",
+            "description": "maximum value of the next charge",
+            "example": 130
+          },
+          "insuranceGroup": {
+            "type": "string",
+            "description": "insurance type",
+            "example": "AUTO"
+          },
+          "plan": {
+            "type": "string",
+            "description": "plan",
+            "example": "SMARTX-G"
+          },
+          "expiresDate": {
+            "type": "string",
+            "description": "expiration date",
+            "example": "2021-09-30T00:00:00.000Z"
+          },
+          "adjustmentRate": {
+            "type": "string",
+            "description": "fee type",
+            "example": "4"
+          },
+          "adjustmentRateAmount": {
+            "type": "number",
+            "description": "fee value",
+            "example": 50999
+          },
+          "adjustmentRatePercent": {
+            "type": "number",
+            "description": "FIPE table return percentage",
+            "example": 90
+          },
+          "deductible": {
+            "type": "string",
+            "description": "type of franchise",
+            "example": "2"
+          },
+          "deductibleAmount": {
+            "type": "number",
+            "description": "franchise value",
+            "example": 1000
+          },
+          "coverages": {
+            "description": "coverages",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CoverageResponseDTO"
+              }
+            ]
+          },
+          "package": {
+            "type": "string",
+            "description": "package",
+            "example": "C"
+          }
+        },
+        "required": [
+          "description",
+          "name",
+          "value",
+          "nextPremiumMin",
+          "nextPremiumMax",
+          "insuranceGroup",
+          "plan",
+          "expiresDate",
+          "adjustmentRate",
+          "adjustmentRateAmount",
+          "adjustmentRatePercent",
+          "deductible",
+          "deductibleAmount",
+          "coverages",
+          "package"
+        ]
+      },
+      "VehicleResponseDTO": {
+        "type": "object",
+        "properties": {
+          "fipeCode": {
+            "type": "string",
+            "description": "vehicle FIPE code",
+            "example": "014077-5"
+          },
+          "year": {
+            "type": "string",
+            "description": "vehicle manufacturing year",
+            "example": "2014"
+          },
+          "armored": {
+            "type": "boolean",
+            "description": "indicates if the vehicle is armored",
+            "example": false
+          },
+          "ItsAWorkVehicle": {
+            "type": "boolean",
+            "description": "indicates if the vehicle is a work vehicle",
+            "example": false
+          },
+          "plate": {
+            "type": "string",
+            "description": "vehicle plate",
+            "example": "OQV6786"
+          },
+          "model": {
+            "type": "string",
+            "description": "vehicle model",
+            "example": "HONDA CITY SEDAN SPORT 1.5 FLEX 16V 4P MEC."
+          },
+          "newVehicle": {
+            "type": "boolean",
+            "description": "indicates if the vehicle is new",
+            "example": false
+          },
+          "chassi": {
+            "type": "string",
+            "description": "vehicle chassis identification",
+            "example": "93HGM2500EZ204094"
+          },
+          "modelYear": {
+            "type": "string",
+            "description": "vehicle release year",
+            "example": "2013"
+          },
+          "usageType": {
+            "type": "string",
+            "description": "vehicle usage type",
+            "example": "automóvel"
+          },
+          "manufacturer": {
+            "type": "string",
+            "description": "vehicle manufacturer",
+            "example": "HONDA"
+          },
+          "fuelType": {
+            "type": "string",
+            "description": "vehicle fuel type",
+            "example": "G"
+          }
+        },
+        "required": [
+          "fipeCode",
+          "year",
+          "armored",
+          "ItsAWorkVehicle",
+          "plate",
+          "model",
+          "newVehicle",
+          "chassi",
+          "modelYear",
+          "usageType",
+          "manufacturer",
+          "fuelType"
+        ]
+      },
+      "QuoteResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "quote id",
+            "example": "5f8f0d4f-6c5f-4f4b-8d5e-3b7e7b7b7b7b"
+          },
+          "adjustmentRate": {
+            "type": "number",
+            "description": "adjustment rate",
+            "example": 10
+          },
+          "materialsDamage": {
+            "type": "number",
+            "description": "material damage coverage value",
+            "example": 1000
+          },
+          "bodilyDamage": {
+            "type": "number",
+            "description": "bodily damage coverage value",
+            "example": 1000
+          },
+          "details": {
+            "description": "details of the quote",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DetailsResponseDTO"
+              }
+            ]
+          },
+          "moralDamage": {
+            "type": "number",
+            "description": "moral damage coverage value",
+            "example": 1000
+          },
+          "deathApp": {
+            "type": "number",
+            "description": "death app coverage value",
+            "example": 1000
+          },
+          "termInit": {
+            "format": "date-time",
+            "type": "string",
+            "description": "initial term date",
+            "example": "2024-12-04T18:17:40.523Z"
+          },
+          "termEnd": {
+            "format": "date-time",
+            "type": "string",
+            "description": "final term date",
+            "example": "2024-12-04T18:17:40.523Z"
+          },
+          "validity": {
+            "format": "date-time",
+            "type": "string",
+            "description": "quote validity date",
+            "example": "2024-12-04T18:17:40.523Z"
+          },
+          "status": {
+            "type": "string",
+            "description": "status of the quote",
+            "example": "active"
+          },
+          "expirationStatus": {
+            "type": "string",
+            "description": "expiration status of the quote",
+            "enum": ["VALID", "EXPIRED", "EXPIRING", "NOT_EXPIRED"],
+            "example": "VALID"
+          },
+          "value": {
+            "type": "number",
+            "description": "quote value",
+            "example": 1000
+          },
+          "franchise": {
+            "type": "string",
+            "description": "franchise type",
+            "enum": ["reduzida", "normal", "majorada"],
+            "example": "majorada"
+          },
+          "assistance": {
+            "type": "string",
+            "description": "assistance package",
+            "example": "M"
+          },
+          "assistanceDetails": {
+            "description": "assistance details",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AssistanceDetailsResponseDTO"
+              }
+            ]
+          },
+          "externalId": {
+            "type": "string",
+            "description": "externa ID, generally used to identify the quote in external systems",
+            "example": "5f8f0d4f-6c5f-4f4b-8d5e-3b7e7b7b7b7b"
+          },
+          "campaignCode": {
+            "type": "string",
+            "description": "campaign ID",
+            "example": "CAMPANHA99OFF"
+          },
+          "commission": {
+            "type": "number",
+            "description": "commission percentage (0.1 = 10%)",
+            "example": 0.1
+          },
+          "customer": {
+            "description": "customer data",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CustomerResponseDTO"
+              }
+            ]
+          },
+          "products": {
+            "description": "product details",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/QuoteProductResponseDTO"
+              }
+            ]
+          },
+          "daysToExpire": {
+            "type": "number",
+            "description": "days to expire",
+            "example": 10
+          },
+          "package": {
+            "type": "string",
+            "description": "package code",
+            "example": "M"
+          },
+          "vehicle": {
+            "description": "vehicle data",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/VehicleResponseDTO"
+              }
+            ]
+          },
+          "packageConfigurations": {
+            "description": "package configurations",
+            "example": ["Guincho de 200km", "Carro reserva de 7 dias"],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "commissionValue": {
+            "type": "number",
+            "description": "commission value",
+            "example": 1000
+          },
+          "formattedCommission": {
+            "type": "string",
+            "description": "formatted commission value",
+            "example": "R$ 1.000,00"
+          },
+          "documentId": {
+            "type": "string",
+            "description": "quotation document ID",
+            "example": "5f8f0d4f-6c5f-4f4b-8d5e-3b7e7b7b7b7b"
+          }
+        },
+        "required": [
+          "id",
+          "adjustmentRate",
+          "materialsDamage",
+          "bodilyDamage",
+          "details",
+          "moralDamage",
+          "deathApp",
+          "termInit",
+          "termEnd",
+          "validity",
+          "status",
+          "expirationStatus",
+          "value",
+          "franchise",
+          "assistance",
+          "assistanceDetails",
+          "externalId",
+          "campaignCode",
+          "commission",
+          "customer",
+          "products",
+          "daysToExpire",
+          "package",
+          "vehicle",
+          "packageConfigurations",
+          "commissionValue",
+          "formattedCommission",
+          "documentId"
+        ]
+      },
+      "ListQuoteResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "quote id",
+            "example": "5f8f0d4f-6c5f-4f4b-8d5e-3b7e7b7b7b7b"
+          },
+          "adjustmentRate": {
+            "type": "number",
+            "description": "adjustment rate",
+            "example": 10
+          },
+          "materialsDamage": {
+            "type": "number",
+            "description": "material damage coverage value",
+            "example": 1000
+          },
+          "bodilyDamage": {
+            "type": "number",
+            "description": "bodily damage coverage value",
+            "example": 1000
+          },
+          "moralDamage": {
+            "type": "number",
+            "description": "moral damage coverage value",
+            "example": 1000
+          },
+          "deathApp": {
+            "type": "number",
+            "description": "death app coverage value",
+            "example": 1000
+          },
+          "termInit": {
+            "format": "date-time",
+            "type": "string",
+            "description": "initial term date",
+            "example": "2024-12-04T18:17:40.523Z"
+          },
+          "termEnd": {
+            "format": "date-time",
+            "type": "string",
+            "description": "final term date",
+            "example": "2024-12-04T18:17:40.523Z"
+          },
+          "validity": {
+            "format": "date-time",
+            "type": "string",
+            "description": "quote validity date",
+            "example": "2024-12-04T18:17:40.523Z"
+          },
+          "status": {
+            "type": "string",
+            "description": "status of the quote",
+            "example": "active"
+          },
+          "expirationStatus": {
+            "type": "string",
+            "description": "expiration status of the quote",
+            "enum": ["VALID", "EXPIRED", "EXPIRING", "NOT_EXPIRED"],
+            "example": "VALID"
+          },
+          "value": {
+            "type": "number",
+            "description": "quote value",
+            "example": 1000
+          },
+          "franchise": {
+            "type": "string",
+            "description": "franchise type",
+            "enum": ["reduzida", "normal", "majorada"],
+            "example": "majorada"
+          },
+          "assistance": {
+            "type": "string",
+            "description": "assistance package",
+            "example": "M"
+          },
+          "assistanceDetails": {
+            "description": "assistance details",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AssistanceDetailsResponseDTO"
+              }
+            ]
+          },
+          "externalId": {
+            "type": "string",
+            "description": "externa ID, generally used to identify the quote in external systems",
+            "example": "5f8f0d4f-6c5f-4f4b-8d5e-3b7e7b7b7b7b"
+          },
+          "campaignCode": {
+            "type": "string",
+            "description": "campaign ID",
+            "example": "CAMPANHA99OFF"
+          },
+          "commission": {
+            "type": "number",
+            "description": "commission percentage (0.1 = 10%)",
+            "example": 0.1
+          },
+          "customer": {
+            "description": "customer data",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CustomerResponseDTO"
+              }
+            ]
+          },
+          "products": {
+            "description": "product details",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/QuoteProductResponseDTO"
+              }
+            ]
+          },
+          "daysToExpire": {
+            "type": "number",
+            "description": "days to expire",
+            "example": 10
+          },
+          "package": {
+            "type": "string",
+            "description": "package code",
+            "example": "M"
+          },
+          "vehicle": {
+            "description": "vehicle data",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/VehicleResponseDTO"
+              }
+            ]
+          },
+          "packageConfigurations": {
+            "description": "package configurations",
+            "example": ["Guincho de 200km", "Carro reserva de 7 dias"],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "commissionValue": {
+            "type": "number",
+            "description": "commission value",
+            "example": 1000
+          },
+          "formattedCommission": {
+            "type": "string",
+            "description": "formatted commission value",
+            "example": "R$ 1.000,00"
+          },
+          "documentId": {
+            "type": "string",
+            "description": "quotation document ID",
+            "example": "5f8f0d4f-6c5f-4f4b-8d5e-3b7e7b7b7b7b"
+          }
+        },
+        "required": [
+          "id",
+          "adjustmentRate",
+          "materialsDamage",
+          "bodilyDamage",
+          "moralDamage",
+          "deathApp",
+          "termInit",
+          "termEnd",
+          "validity",
+          "status",
+          "expirationStatus",
+          "value",
+          "franchise",
+          "assistance",
+          "assistanceDetails",
+          "externalId",
+          "campaignCode",
+          "commission",
+          "customer",
+          "products",
+          "daysToExpire",
+          "package",
+          "vehicle",
+          "packageConfigurations",
+          "commissionValue",
+          "formattedCommission",
+          "documentId"
+        ]
+      },
+      "UpdateQuoteRequestDTO": {
+        "type": "object",
+        "properties": {
+          "adjustmentRate": {
+            "type": "number"
+          },
+          "materialsDamage": {
+            "type": "number"
+          },
+          "bodilyDamage": {
+            "type": "number"
+          },
+          "moralDamage": {
+            "type": "number"
+          },
+          "deathApp": {
+            "type": "number"
+          },
+          "commission": {
+            "type": "number"
+          },
+          "assistance": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "adjustmentRate",
+          "materialsDamage",
+          "bodilyDamage",
+          "moralDamage",
+          "deathApp",
+          "commission",
+          "assistance"
+        ]
+      },
+      "DocumentResponseDTO": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "type of the document",
+            "example": "quote"
+          },
+          "url": {
+            "type": "string",
+            "description": "URL of the document",
+            "example": "https://www.example.com"
+          }
+        },
+        "required": ["type", "url"]
+      },
+      "TicketProductResponseDTO": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "description": "product description",
+            "example": ["This is a product description", "This is another product description"],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "product name",
+            "example": "Auto Insurance"
+          },
+          "value": {
+            "type": "number",
+            "description": "product value",
+            "example": 120
+          },
+          "nextPremiumMin": {
+            "type": "number",
+            "description": "minimum value of the next charge",
+            "example": 110
+          },
+          "nextPremiumMax": {
+            "type": "number",
+            "description": "maximum value of the next charge",
+            "example": 130
+          },
+          "vatAmount": {
+            "type": "string",
+            "description": "tax amount",
+            "example": "7.32"
+          },
+          "commission": {
+            "type": "string",
+            "description": "commission percentage (0.1 = 10%)",
+            "example": "0.1"
+          }
+        },
+        "required": ["description", "name", "value", "nextPremiumMin", "nextPremiumMax", "vatAmount", "commission"]
+      },
+      "GetTicketResponseDTO": {
+        "type": "object",
+        "properties": {
+          "ticketNumber": {
+            "type": "string",
+            "description": "ticket identification number",
+            "example": "00000000000000000000"
+          },
+          "transmissionId": {
+            "type": "string",
+            "description": "transmission ID",
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          "status": {
+            "type": "string",
+            "description": "transmission status",
+            "example": "Active"
+          },
+          "initTerm": {
+            "type": "string",
+            "description": "ticket term start date",
+            "example": "2024-05-08T00:00:00.000+00:00"
+          },
+          "endTerm": {
+            "format": "date-time",
+            "type": "string",
+            "description": "end date of ticket term",
+            "example": "2024-06-07T23:59:59.000+00:00"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "ticket emission date",
+            "example": "2024-05-08T13:25:22.201+00:00"
+          },
+          "customer": {
+            "description": "customer data",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CustomerResponseDTO"
+              }
+            ]
+          },
+          "vehicle": {
+            "description": "vehicle data",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/VehicleResponseDTO"
+              }
+            ]
+          },
+          "product": {
+            "description": "product data",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TicketProductResponseDTO"
+              }
+            ]
+          },
+          "campaignCode": {
+            "type": "string",
+            "description": "campaign code (if applicable)",
+            "example": "ABC123"
+          }
+        },
+        "required": [
+          "ticketNumber",
+          "transmissionId",
+          "status",
+          "initTerm",
+          "endTerm",
+          "createdAt",
+          "customer",
+          "vehicle",
+          "product",
+          "campaignCode"
+        ]
+      },
+      "TransmissionProductInstallmentsResponseDTO": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "string",
+            "description": "installment amount",
+            "example": "100.00"
+          },
+          "quantity": {
+            "type": "string",
+            "description": "installment quantity",
+            "example": "6"
+          },
+          "value": {
+            "type": "string",
+            "description": "installment value",
+            "example": "16.66"
+          },
+          "fee": {
+            "type": "string",
+            "description": "installment fee",
+            "example": "5.00"
+          }
+        },
+        "required": ["amount", "quantity", "value", "fee"]
+      },
+      "TransmissionProductPaymentMethodResponseDTO": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "payment method type",
+            "example": "credit"
+          },
+          "installments": {
+            "description": "installments",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TransmissionProductInstallmentsResponseDTO"
+              }
+            ]
+          }
+        },
+        "required": ["type", "installments"]
+      },
+      "TransmissionProductResponseDTO": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "description": "product description",
+            "example": ["This is a product description", "This is another product description"],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "product name",
+            "example": "product name"
+          },
+          "nextPremiumMax": {
+            "type": "string",
+            "description": "next premium maximum value",
+            "example": "172.52"
+          },
+          "nextPremiumMin": {
+            "type": "string",
+            "description": "next premium minimum value",
+            "example": "149.56"
+          },
+          "value": {
+            "type": "string",
+            "description": "product value",
+            "example": "1000"
+          },
+          "adjustmentRate": {
+            "type": "string",
+            "description": "adjustment rate",
+            "example": "6"
+          },
+          "adjustmentRateAmount": {
+            "type": "string",
+            "description": "adjustment rate amount",
+            "example": "5654"
+          },
+          "adjustmentRatePercent": {
+            "type": "string",
+            "description": "adjustment rate percentage",
+            "example": "100"
+          },
+          "deductible": {
+            "type": "string",
+            "description": "deductible",
+            "example": "2"
+          },
+          "deductibleAmount": {
+            "type": "string",
+            "description": "deductible amount",
+            "example": "0"
+          },
+          "franchisePercent": {
+            "type": "string",
+            "description": "franchise percentage",
+            "example": "11"
+          },
+          "insuranceGroup": {
+            "type": "string",
+            "description": "insurance group",
+            "example": "AUTO"
+          },
+          "plan": {
+            "type": "string",
+            "description": "plan",
+            "example": "SMARTX-TR"
+          },
+          "planInterval": {
+            "type": "string",
+            "description": "plan interval",
+            "example": "Monthly"
+          },
+          "valueMax": {
+            "type": "string",
+            "description": "maximum value",
+            "example": "172.52"
+          },
+          "valueMin": {
+            "type": "string",
+            "description": "minimum value",
+            "example": "149.56"
+          },
+          "vatAmount": {
+            "type": "string",
+            "description": "VAT amount",
+            "example": "10.66"
+          },
+          "package": {
+            "type": "string",
+            "description": "package type",
+            "example": "P"
+          },
+          "paymentMethod": {
+            "description": "payment method",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TransmissionProductPaymentMethodResponseDTO"
+              }
+            ]
+          }
+        },
+        "required": [
+          "description",
+          "name",
+          "nextPremiumMax",
+          "nextPremiumMin",
+          "value",
+          "adjustmentRate",
+          "adjustmentRateAmount",
+          "adjustmentRatePercent",
+          "deductible",
+          "deductibleAmount",
+          "franchisePercent",
+          "insuranceGroup",
+          "plan",
+          "planInterval",
+          "valueMax",
+          "valueMin",
+          "vatAmount",
+          "package",
+          "paymentMethod"
+        ]
+      },
+      "TransmissionCustomerResponseDTO": {
+        "type": "object",
+        "properties": {
+          "document": {
+            "type": "string",
+            "description": "customer document (CPF)",
+            "example": "00000000000"
+          },
+          "name": {
+            "type": "string",
+            "description": "customer name",
+            "example": "Darwin"
+          },
+          "postCode": {
+            "type": "string",
+            "description": "customer postal code",
+            "example": "00000-000"
+          },
+          "phone": {
+            "type": "string",
+            "description": "customer phone number",
+            "example": "11999999999"
+          },
+          "email": {
+            "type": "string",
+            "description": "customer email",
+            "example": "charles@darwinseguros.com"
+          },
+          "registeredName": {
+            "type": "string",
+            "description": "customer registration name (if customer has a social name)",
+            "example": "Charles Robert Darwin"
+          },
+          "gender": {
+            "type": "string",
+            "description": "customer gender",
+            "example": "M"
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "description": "customer birth date",
+            "example": "19/02/1809"
+          }
+        },
+        "required": ["document", "name", "postCode", "phone", "email", "registeredName", "gender", "dateOfBirth"]
+      },
+      "TransmissionResponseDTO": {
+        "type": "object",
+        "properties": {
+          "documentId": {
+            "type": "string",
+            "description": "transmission document id",
+            "example": "4cb75998-2f93-43ef-99ef-068c48825516"
+          },
+          "status": {
+            "type": "string",
+            "description": "transmission status",
+            "example": "ACTIVE"
+          },
+          "masterPolicy": {
+            "type": "string",
+            "description": "transmission master policy",
+            "example": "4cb75998-2f93-43ef-99ef-068c48825516"
+          },
+          "insuranceType": {
+            "type": "string",
+            "description": "transmission insurance type",
+            "example": "AUTO"
+          },
+          "state": {
+            "type": "string",
+            "description": "where the transmission was created",
+            "example": "SP"
+          },
+          "vehicle": {
+            "description": "vehicle data",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/VehicleResponseDTO"
+              }
+            ]
+          },
+          "termInit": {
+            "type": "string",
+            "description": "transmission term init date",
+            "example": "2024-05-27T17:25:00.400Z"
+          },
+          "externalId": {
+            "type": "string",
+            "description": "transmission external id",
+            "example": "4cb75998-2f93-43ef-99ef-068c48825516"
+          },
+          "rejectReason": {
+            "type": "string",
+            "description": "transmission reject reason",
+            "example": "REJECT"
+          },
+          "campaignCode": {
+            "type": "string",
+            "description": "transmission campaign code",
+            "example": "4cb75998-2f93-43ef-99ef-068c48825516"
+          },
+          "id": {
+            "type": "string",
+            "description": "transmission id",
+            "example": "4cb75998-2f93-43ef-99ef-068c48825516"
+          },
+          "product": {
+            "description": "product data",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TransmissionProductResponseDTO"
+              }
+            ]
+          },
+          "paymentLink": {
+            "type": "string",
+            "description": "payment link",
+            "example": "https://paymentlink.com"
+          },
+          "transmissionId": {
+            "type": "string",
+            "description": "transmission id",
+            "example": "4cb75998-2f93-43ef-99ef-068c48825516"
+          },
+          "termEnd": {
+            "type": "string",
+            "description": "transmission term end date",
+            "example": "2024-05-27T17:25:00.400Z"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "transmission created date",
+            "example": "2024-05-27T17:25:00.400Z"
+          },
+          "value": {
+            "type": "string",
+            "description": "transmission value",
+            "example": "100.00"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "transmission updated date",
+            "example": "2024-05-27T17:25:00.400Z"
+          },
+          "validityDate": {
+            "type": "string",
+            "description": "transmission validity date",
+            "example": "2024-05-27T17:25:00.400Z"
+          },
+          "commission": {
+            "type": "string",
+            "description": "commission percentage (0.1 = 10%)",
+            "example": "0.1"
+          },
+          "username": {
+            "type": "string",
+            "description": "Darwin user id",
+            "example": "4cb75998-2f93-43ef-99ef-068c48825516"
+          },
+          "customer": {
+            "description": "customer data",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TransmissionCustomerResponseDTO"
+              }
+            ]
+          }
+        },
+        "required": [
+          "documentId",
+          "status",
+          "masterPolicy",
+          "insuranceType",
+          "state",
+          "vehicle",
+          "termInit",
+          "externalId",
+          "rejectReason",
+          "campaignCode",
+          "id",
+          "product",
+          "paymentLink",
+          "transmissionId",
+          "termEnd",
+          "createdAt",
+          "value",
+          "updatedAt",
+          "validityDate",
+          "commission",
+          "username",
+          "customer"
+        ]
+      },
+      "InstallmentDTO": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "number",
+            "description": "installment value"
+          },
+          "quantity": {
+            "type": "number",
+            "description": "total of installments"
+          },
+          "fee": {
+            "type": "number",
+            "description": "tax fee"
+          },
+          "amount": {
+            "type": "number",
+            "description": "payment total amount"
+          }
+        }
+      },
+      "PaymentMethodDTO": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "payment method type",
+            "enum": ["CreditCard"]
+          },
+          "installments": {
+            "description": "available installment options",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/InstallmentDTO"
+              }
+            ]
+          }
+        }
+      },
+      "CreateTransmissionDTO": {
+        "type": "object",
+        "properties": {
+          "quotationId": {
+            "type": "string",
+            "description": "quote ID this transmission is based on",
+            "example": "994e982f-060c-4aef-bb9e-54337020e5c0"
+          },
+          "plate": {
+            "type": "string",
+            "description": "vehicle plate",
+            "example": "GAU7610"
+          },
+          "chassi": {
+            "type": "string",
+            "description": "chassis number",
+            "example": "9BD111060T5002156"
+          },
+          "phone": {
+            "type": "string",
+            "description": "client phone",
+            "example": "(11) 999999999"
+          },
+          "paymentMethod": {
+            "description": "payment method",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PaymentMethodDTO"
+              }
+            ]
+          },
+          "email": {
+            "type": "string",
+            "description": "customer e-mail",
+            "example": "charles@darwinseguros.com"
+          }
+        },
+        "required": ["quotationId"]
+      },
+      "CommissionSummaryDetailsDto": {
+        "type": "object",
+        "properties": {
+          "contract": {
+            "type": "string"
+          },
+          "policyNo": {
+            "type": "string"
+          },
+          "commissionNumber": {
+            "type": "number"
+          },
+          "value": {
+            "type": "number"
+          },
+          "paymentDate": {
+            "type": "string"
+          },
+          "commissionPercent": {
+            "type": "number"
+          },
+          "commissionValue": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "contract",
+          "policyNo",
+          "commissionNumber",
+          "value",
+          "paymentDate",
+          "commissionPercent",
+          "commissionValue"
+        ]
+      },
+      "CommissionSummaryResponseDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "count": {
+            "type": "number"
+          },
+          "totalCommission": {
+            "type": "number"
+          },
+          "totalValue": {
+            "type": "number"
+          },
+          "details": {
+            "description": "Array of commission summary details",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommissionSummaryDetailsDto"
+            }
+          }
+        },
+        "required": ["type", "count", "totalCommission", "totalValue", "details"]
+      },
+      "CustomerRequestDto": {
+        "type": "object",
+        "properties": {
+          "dateOfBirth": {
+            "type": "string",
+            "description": "customer birth date",
+            "example": "1991-01-01"
+          },
+          "document": {
+            "type": "string",
+            "description": "customer document (CPF)",
+            "example": "12345678901"
+          },
+          "email": {
+            "type": "string",
+            "description": "customer email",
+            "example": "charles@darwinseguros.com"
+          },
+          "gender": {
+            "type": "string",
+            "description": "customer gender",
+            "example": "0"
+          },
+          "maritalStatus": {
+            "type": "string",
+            "description": "customer marital status",
+            "example": "single"
+          },
+          "name": {
+            "type": "string",
+            "description": "customer name",
+            "example": "Charles Darwin"
+          },
+          "phone": {
+            "type": "string",
+            "description": "customer phone number",
+            "example": "(11) 9 99999999"
+          },
+          "postalCode": {
+            "type": "string",
+            "description": "customer postal code",
+            "example": "00000000"
+          },
+          "registeredName": {
+            "type": "string",
+            "description": "customer registered name (for customer with social name)",
+            "example": "Complete Customer Registered Name"
+          }
+        },
+        "required": [
+          "dateOfBirth",
+          "document",
+          "email",
+          "gender",
+          "maritalStatus",
+          "name",
+          "phone",
+          "postalCode",
+          "registeredName"
+        ]
+      },
+      "DefinitionRequestDto": {
+        "type": "object",
+        "properties": {
+          "adjustmentRate": {
+            "type": "number",
+            "description": "vehicle coverage/insurance value in percentage",
+            "example": 100
+          },
+          "commission": {
+            "type": "number",
+            "description": "commission percentage (0.1 = 10%)",
+            "example": "0.1"
+          },
+          "CI": {
+            "type": "string",
+            "description": "bonus class CI code"
+          },
+          "deductible": {
+            "type": "number",
+            "description": "deductible",
+            "example": 1
+          },
+          "insuranceCode": {
+            "type": "string",
+            "description": "bonus class congeneric code",
+            "example": "5555"
+          },
+          "insuranceType": {
+            "type": "string",
+            "description": "insurance type",
+            "example": "New"
+          },
+          "item": {
+            "type": "string",
+            "description": "bonus class item",
+            "example": "0001"
+          },
+          "level": {
+            "type": "number",
+            "description": "bonus class level",
+            "example": 0
+          },
+          "numberOfClaims": {
+            "type": "number",
+            "description": "number of claims",
+            "example": 0
+          },
+          "policyCongeneric": {
+            "type": "string",
+            "description": "bonus class congeneric policy",
+            "example": "1234567890"
+          },
+          "previousDeadline": {
+            "type": "string",
+            "description": "previous deadline",
+            "example": "2024-10-19 23:59:59"
+          },
+          "termEnd": {
+            "type": "string",
+            "description": "term end date",
+            "example": "2024-10-19 23:59:59"
+          },
+          "termInit": {
+            "type": "string",
+            "description": "term init date",
+            "example": "2024-10-19 23:59:59"
+          }
+        },
+        "required": [
+          "adjustmentRate",
+          "commission",
+          "CI",
+          "deductible",
+          "insuranceCode",
+          "insuranceType",
+          "item",
+          "level",
+          "numberOfClaims",
+          "policyCongeneric",
+          "previousDeadline",
+          "termEnd",
+          "termInit"
+        ]
+      },
+      "DriverRequestDto": {
+        "type": "object",
+        "properties": {
+          "dateOfBirth": {
+            "type": "string",
+            "description": "main conductor birth date",
+            "example": "1991-01-01"
+          },
+          "document": {
+            "type": "string",
+            "description": "main conductor document (CPF)",
+            "example": "12345678901"
+          },
+          "gender": {
+            "type": "string",
+            "description": "customer gender",
+            "example": "0"
+          },
+          "maritalStatus": {
+            "type": "string",
+            "description": "customer Marital Status",
+            "example": "Single"
+          },
+          "name": {
+            "type": "string",
+            "description": "main conductor name",
+            "example": "Charles Darwin"
+          },
+          "qualificationTime": {
+            "type": "number",
+            "description": "qualification time",
+            "example": 10
+          },
+          "relationship": {
+            "type": "string",
+            "description": "customer relationship",
+            "example": "Self"
+          }
+        },
+        "required": ["dateOfBirth", "document", "gender", "maritalStatus", "name", "qualificationTime", "relationship"]
+      },
+      "CoverageRequestDto": {
+        "type": "object",
+        "properties": {
+          "coverageId": {
+            "type": "number",
+            "description": "Coverage id",
+            "example": 2
+          },
+          "referenceValue": {
+            "type": "string",
+            "description": "Coverage value",
+            "example": "0D"
+          }
+        },
+        "required": ["coverageId", "referenceValue"]
+      },
+      "PlanRequestDto": {
+        "type": "object",
+        "properties": {
+          "planId": {
+            "type": "number",
+            "minimum": 1,
+            "description": "plan Id",
+            "example": 1
+          },
+          "coverages": {
+            "description": "coverages data",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CoverageRequestDto"
+              }
+            ]
+          },
+          "disabledCovers": {
+            "example": 2,
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "required": ["planId", "coverages", "disabledCovers"]
+      },
+      "QuestionnaireRequestDto": {
+        "type": "object",
+        "properties": {
+          "hasDisability": {
+            "type": "boolean",
+            "description": "Indicates if the user has a disability",
+            "example": true
+          },
+          "homeGarage": {
+            "type": "string",
+            "description": "Garage condition at home",
+            "enum": ["withElectronicGate", "withManualGate", "noGarage"],
+            "example": "withElectronicGate"
+          },
+          "homeVehicleCount": {
+            "type": "number",
+            "description": "Number of vehicles at home",
+            "example": 2
+          },
+          "mainBank": {
+            "type": "number",
+            "description": "MainBank of insured"
+          },
+          "monthlyKM": {
+            "type": "number",
+            "description": "Monthly kilometers driven"
+          },
+          "profession": {
+            "type": "string",
+            "description": "Profession of insured"
+          },
+          "residentsAge": {
+            "type": "string",
+            "description": "Age range of residents",
+            "enum": ["age18To24", "ageMore25"],
+            "example": "age18To24"
+          },
+          "residenceType": {
+            "type": "string",
+            "description": "Type of residence",
+            "enum": ["house", "apartment", "condominium", "others"],
+            "example": "house"
+          },
+          "studyGarage": {
+            "type": "string",
+            "description": "Garage condition at school",
+            "enum": ["notUsedForStudy", "no", "yes", "notStudying"],
+            "example": "notStudying"
+          },
+          "taxExemption": {
+            "type": "string",
+            "description": "Is there any tax exemption?",
+            "enum": ["IPI", "ICMS", "IPI/ICMS"],
+            "example": "IPI"
+          },
+          "under26Residents": {
+            "type": "string",
+            "description": "Are there residents under 26?",
+            "enum": ["no", "yesMale", "yesFemale", "yesBothGenders", "yesButNotUsingVehicle"],
+            "example": "yesMale"
+          },
+          "workDistance": {
+            "type": "string",
+            "description": "Distance to work in kilometers",
+            "enum": ["upTo10KM", "upTo20KM", "upTo30KM", "upTo40KM", "above40KM"],
+            "example": "upTo10KM"
+          },
+          "workGarage": {
+            "type": "string",
+            "description": "Garage condition at work",
+            "enum": ["notUsedForWork", "no", "yes", "notEmployed"],
+            "example": "no"
+          }
+        },
+        "required": [
+          "hasDisability",
+          "homeGarage",
+          "homeVehicleCount",
+          "mainBank",
+          "monthlyKM",
+          "profession",
+          "residentsAge",
+          "residenceType",
+          "studyGarage",
+          "taxExemption",
+          "under26Residents",
+          "workDistance",
+          "workGarage"
+        ]
+      },
+      "VehicleRequestDto": {
+        "type": "object",
+        "properties": {
+          "alienated": {
+            "type": "boolean",
+            "description": "indicates if the vehicle is alienated",
+            "example": true
+          },
+          "antitheft": {
+            "type": "string",
+            "description": "vehicle usage type",
+            "enum": ["none", "alarm", "ignitionBlock", "carneiroLock", "mulTLock", "others"],
+            "example": "alarm"
+          },
+          "armored": {
+            "type": "boolean",
+            "description": "indicates if the vehicle is armored",
+            "example": true
+          },
+          "auctionVehicle": {
+            "type": "boolean",
+            "description": "auction vehicle",
+            "example": true
+          },
+          "auctionVehicleScore": {
+            "type": "number",
+            "description": "auction vehicle score",
+            "example": 0
+          },
+          "chassi": {
+            "type": "string",
+            "description": "vehicle chassis",
+            "example": "9BWDA05U8DT108399"
+          },
+          "disability": {
+            "type": "boolean",
+            "description": "disability",
+            "example": true
+          },
+          "fipeCode": {
+            "type": "string",
+            "description": "FIPE code",
+            "example": "123456-7"
+          },
+          "fuelTypeCode": {
+            "type": "string",
+            "description": "fuel type",
+            "example": "1"
+          },
+          "gasKit": {
+            "type": "boolean",
+            "description": "indicates if the vehicle have gas kit",
+            "example": true
+          },
+          "manufacturer": {
+            "type": "string",
+            "description": "vehicle manufacturer",
+            "example": "Hyundai"
+          },
+          "model": {
+            "type": "string",
+            "description": "vehicle model",
+            "example": "HB20"
+          },
+          "modelYear": {
+            "type": "string",
+            "description": "vehicle release year",
+            "example": "2022"
+          },
+          "modified": {
+            "type": "boolean",
+            "description": "modified",
+            "example": true
+          },
+          "newVehicle": {
+            "type": "boolean",
+            "description": "indicates if the vehicle is new",
+            "example": true
+          },
+          "overnightPostalCode": {
+            "type": "string",
+            "description": "vehicle overnight post code postal code",
+            "example": "00000000"
+          },
+          "plate": {
+            "type": "string",
+            "description": "vehicle plate",
+            "example": "ABC1234"
+          },
+          "taxExemption": {
+            "type": "string",
+            "example": "IPI"
+          },
+          "trackingDevice": {
+            "type": "string",
+            "description": "vehicle tracking system",
+            "enum": [
+              "autoTrac",
+              "carSystem",
+              "celtec",
+              "cielo",
+              "graber",
+              "ituran",
+              "tracker",
+              "omnilink",
+              "positron",
+              "sascar",
+              "DAF-V",
+              "ceABS",
+              "onStar",
+              "loJack",
+              "factoryOriginal",
+              "SEGSAT",
+              "carneiroLock",
+              "none"
+            ],
+            "example": "carneiroLock"
+          },
+          "typeVehicleDENATRANCode": {
+            "type": "number",
+            "description": "type vehicle denatran code",
+            "example": 1
+          },
+          "usageType": {
+            "type": "string",
+            "description": "vehicle usage type",
+            "example": "1"
+          },
+          "vehicleInspection": {
+            "type": "boolean",
+            "description": "vehicle inspection",
+            "example": false
+          },
+          "year": {
+            "type": "string",
+            "description": "vehicle manufacturing year",
+            "example": 2023
+          }
+        },
+        "required": [
+          "alienated",
+          "antitheft",
+          "armored",
+          "auctionVehicle",
+          "auctionVehicleScore",
+          "chassi",
+          "disability",
+          "fipeCode",
+          "fuelTypeCode",
+          "gasKit",
+          "manufacturer",
+          "model",
+          "modelYear",
+          "modified",
+          "newVehicle",
+          "overnightPostalCode",
+          "plate",
+          "trackingDevice",
+          "typeVehicleDENATRANCode",
+          "usageType",
+          "vehicleInspection",
+          "year"
+        ]
+      },
+      "CreateQuoteRequestDto": {
+        "type": "object",
+        "properties": {
+          "customer": {
+            "description": "customer data",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CustomerRequestDto"
+              }
+            ]
+          },
+          "definition": {
+            "description": "definition data",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DefinitionRequestDto"
+              }
+            ]
+          },
+          "driver": {
+            "description": "driver data",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DriverRequestDto"
+              }
+            ]
+          },
+          "plans": {
+            "description": "plans data",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PlanRequestDto"
+              }
+            ]
+          },
+          "questionnaire": {
+            "description": "questionnaire data",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/QuestionnaireRequestDto"
+              }
+            ]
+          },
+          "vehicle": {
+            "description": "vehicle data",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/VehicleRequestDto"
+              }
+            ]
+          }
+        },
+        "required": ["customer", "definition", "driver", "plans", "questionnaire", "vehicle"]
+      },
+      "PriceResponseDto": {
+        "type": "object",
+        "properties": {
+          "adjustmentRate": {
+            "type": "number",
+            "description": "adjustment rate",
+            "example": 90
+          },
+          "commission": {
+            "type": "number",
+            "description": "commission percentage",
+            "example": 0.1
+          },
+          "deductibleAmount": {
+            "type": "number",
+            "description": "deductible total installment amount",
+            "example": 1000
+          },
+          "planInterval": {
+            "type": "string",
+            "description": "plan interval",
+            "example": "Monthly"
+          },
+          "value": {
+            "type": "number",
+            "description": "value",
+            "example": 200
+          },
+          "valueMax": {
+            "type": "number",
+            "description": "maximum value",
+            "example": 200
+          },
+          "valueMin": {
+            "type": "number",
+            "description": "minimum value",
+            "example": 120
+          }
+        },
+        "required": [
+          "adjustmentRate",
+          "commission",
+          "deductibleAmount",
+          "planInterval",
+          "value",
+          "valueMax",
+          "valueMin"
+        ]
+      },
+      "CreateQuoteResponseDto": {
+        "type": "object",
+        "properties": {
+          "daysToExpire": {
+            "type": "number",
+            "description": "days to expire",
+            "example": 10
+          },
+          "id": {
+            "type": "string",
+            "description": "quote id",
+            "example": "2411298365881999"
+          },
+          "nane": {
+            "type": "string",
+            "description": "plan name",
+            "example": "2411298365881999"
+          },
+          "planId": {
+            "type": "number",
+            "description": "plan id",
+            "example": 1
+          },
+          "price": {
+            "description": "price details of the quote",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PriceResponseDto"
+              }
+            ]
+          },
+          "status": {
+            "type": "string",
+            "description": "status of the quote",
+            "example": "active"
+          }
+        },
+        "required": ["daysToExpire", "id", "nane", "planId", "price", "status"]
+      }
+    }
+  }
+}
